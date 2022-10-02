@@ -19,6 +19,87 @@
   <link rel="stylesheet" href="assets/css/lineIcons.css" />
   <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
+  <script defer src="/__/firebase/9.6.5/firebase-app-compat.js"></script>
+  <!-- include only the Firebase features as you need -->
+  <!-- <script defer src="/__/firebase/9.6.5/firebase-auth-compat.js"></script> -->
+  <!-- <script defer src="/__/firebase/9.6.5/firebase-database-compat.js"></script> -->
+  <script defer src="/__/firebase/9.6.5/firebase-firestore-compat.js"></script>
+  <script defer src="/__/firebase/9.6.5/firebase-functions-compat.js"></script>
+  <!-- <script defer src="/__/firebase/9.6.5/firebase-messaging-compat.js"></script> -->
+  <!-- <script defer src="/__/firebase/9.6.5/firebase-storage-compat.js"></script> -->
+  <script defer src="/__/firebase/9.6.5/firebase-analytics-compat.js"></script>
+  <!-- <script defer src="/__/firebase/9.6.5/firebase-remote-config-compat.js"></script> -->
+  <script defer src="/__/firebase/9.6.5/firebase-performance-compat.js"></script>
+  <style>
+    #modal {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0px;
+      left: 0px;
+      z-index: 9999;
+      background-color: rgba(0, 0, 0, 0.333);
+      backdrop-filter: blur(5px);
+    }
+
+    .modalContainer {
+      width: auto;
+      height: 500px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 2px 10px 20px rgba(0, 0, 0, 0.5);
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      overflow-y: hidden;
+    }
+
+    .modalContainer form {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      row-gap: 10px;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modalContainer>img {
+      transform: translateY(-10%);
+      object-fit: cover;
+      object-position: center;
+      height: auto;
+      width: 100%;
+      overflow-y: hidden;
+    }
+
+    .modalContainer form h2 {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    .modalContainer form input,
+    textarea {
+      padding: 10px;
+      position: relative;
+      border: 2px solid #ea7c69;
+      border-radius: 7px;
+      font-size: 20px;
+    }
+    button{
+      border:none;
+      background: #ea7c69;
+      border-radius: 7px;
+      box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.181);
+      color:white;
+      padding:10px 40px;
+      font-size:20px;
+    }
+  </style>
 </head>
 
 <body>
@@ -86,9 +167,9 @@
               <!-- navbar collapse -->
 
               <div class="navbar-btn d-none d-sm-inline-block">
-                <a class="main-btn" data-scroll-nav="0" href="https://uideck.com/templates/basic/" rel="nofollow">
-                  Download Now
-                </a>
+                <button class="main-btn" data-scroll-nav="0" onclick="openModal()" rel="nofollow">
+                  Register Now
+                </button>
               </div>
             </nav>
             <!-- navbar -->
@@ -442,14 +523,14 @@
           <div class="col-lg-6">
             <div class="subscribe-content mt-45">
               <h2 class="subscribe-title">
-                Subscribe Our Newsletter <span>get reguler updates</span>
+                Subscribe Our Newsletter <span>get regular updates</span>
               </h2>
             </div>
           </div>
           <div class="col-lg-6">
             <div class="subscribe-form mt-50">
-              <form action="#">
-                <input type="text" placeholder="Enter eamil" />
+              <form onsubmit="addMail(event)">
+                <input type="text" placeholder="Enter email" />
                 <button class="main-btn" style="color: #fff;">Subscribe</button>
               </form>
             </div>
@@ -462,10 +543,6 @@
         <div class="row">
           <div class="col-lg-4 col-md-6 col-sm-8">
             <div class="footer-about mt-50 wow fadeIn" data-wow-duration="1s" data-wow-delay="0.2s">
-              <!-- <a class="logo" href="javascript:void(0)">
-                <img src="assets/images/logo/viraj-logo.png" alt="logo" style="width: 120px;">
-              </a> -->
-              <!-- <p class="text">
                 Lorem ipsum dolor sit amet consetetur sadipscing elitr,
                 sederfs diam nonumy eirmod tempor invidunt ut labore et dolore
                 magna aliquyam.
@@ -578,6 +655,55 @@
   <script src="assets/js/count-up.min.js"></script>
   <script src="assets/js/particles.min.js"></script>
   <script src="assets/js/main.js"></script>
+  <!-- Modal and firebase integration -->
+  <div id="modal">
+    <div class="modalContainer">
+      <form onsubmit="addContactDetails(event)">
+        <h2>Register Now</h2>
+        <hr>
+        <input type="text" placeholder="Full Name" name="name">
+        <input type="email" placeholder="Email" name="email">
+        <input type="number" placeholder="Phone Number" name="phone">
+        <textarea type="text" placeholder="Description" name="desc"></textarea>
+        <button type="submit">Submit</button>
+      </form>
+      <img src="./assets/images/header/wave.svg" alt="">
+    </div>
+  </div>
 </body>
+<script>
+  document.getElementById("modal").addEventListener("click", function (e) {
+    if (e.target.id == "modal") {
+      document.getElementById("modal").style.display = "none";
+    }
+  });
+  function openModal() {
+    document.getElementById("modal").style.display = "block";
+  }
+  function addMail(){
+    var email = event.target[0].value;
+    var data = {
+      email: email,
+    }
+    firebase.database().ref("subscribers").push(data);
+  }
+  function addContactDetails(event) {
+    event.preventDefault();
+    console.log(event.target[0])
+    const data = {
+      name:event.target[0].value,
+      email:event.target[0].value,
+      number:event.target[0].value,
+      description:event.target[0].value
+    }
+    document.getElementById("modal").style.display = "none";
+    firebase.firestore().collection('contactReq').add(data).then((res) => {
+      tata.success('Thank You', 'Your contact request is sent. We will get back to you soon.');
+      cform.reset();
+    }).catch((err) => {
+      tata.error('Sorry', 'Something went wrong. Please try again.');
+    });
+  }
+</script>
 
 </html>
