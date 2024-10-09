@@ -1,7 +1,7 @@
 {
   "hosting": {
     "public": ".",
-    "site":"viraj-about",
+    "site":"fbms-shreeva-demo",
     "ignore": [
       "firebase.json",
       "**/.*",
